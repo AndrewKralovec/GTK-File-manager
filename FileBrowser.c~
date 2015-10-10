@@ -30,61 +30,21 @@ enum {
 
 int main (int argc, char *argv[]) {
   GtkWidget *window;
-  GtkWidget *vbox;
-  
   GtkWidget *view;
-  GtkWidget *toolbar;
-  GtkToolItem *new;
-  GtkToolItem *open;
-  GtkToolItem *save;
-  GtkToolItem *sep;
-  GtkToolItem *exit;
-
-
 
   gtk_init (&argc, &argv);
 
-  window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-  gtk_window_set_default_size(GTK_WINDOW(window), 250, 200);
-  gtk_window_set_title(GTK_WINDOW(window), "Directory View");
-      
-    
-  vbox = gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(window), vbox);
+  window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  g_signal_connect (window, "delete_event", gtk_main_quit, NULL); // dirty signal
 
-  
-  toolbar = gtk_toolbar_new();
-  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
-  
-  // New 
-  new = gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), new, -1);
-  
-  // Open 
-  open = gtk_tool_button_new_from_stock(GTK_STOCK_OPEN);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), open, -1);
-  
-  // Save 
-  save = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), save, -1);
-  
-  // Exit 
-  exit = gtk_tool_button_new_from_stock(GTK_STOCK_QUIT);
-  gtk_toolbar_insert(GTK_TOOLBAR(toolbar), exit, -1);
-  
-  // Pack Vbox
-  gtk_box_pack_start(GTK_BOX(vbox), toolbar, FALSE, FALSE, 5);
-  
-  // View 
   view = create_view_and_model ();
-  gtk_box_pack_start(GTK_BOX(vbox), view, TRUE, TRUE, 0);
-  gtk_widget_grab_focus(view);
-   
 
-  gtk_widget_show_all(window);
+  gtk_container_add (GTK_CONTAINER (window), view);
 
-  gtk_main();
+  gtk_widget_show_all (window);
+
+  gtk_main ();
+
   return 0;
 }
 
@@ -108,7 +68,7 @@ static GtkTreeModel *create_and_fill_model (void) {
 			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter,
                       COL_NAME,dir->d_name, // Set COL_NAME to dir name 
-                      COL_AGE, getFileType(dir->d_name),
+                      COL_AGE, 51,
                       -1); //remember to end the list of columns with a -1
 				  }
   }
@@ -141,7 +101,7 @@ static GtkWidget *create_view_and_model (void) {
   renderer = gtk_cell_renderer_text_new ();
   gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view),
                                                -1,      
-                                               "Size (Byte)",  
+                                               "Age",  
                                                renderer,
                                                "text", COL_AGE,
                                                NULL);
@@ -162,17 +122,13 @@ static GtkWidget *create_view_and_model (void) {
 
 
 
-int checkFile(const char *path){
+int checkFile(const char *path)
+{
     struct stat path_stat;
     stat(path, &path_stat);
     return S_ISREG(path_stat.st_mode);
 }
 
-int getFileType(const char *file){
-	 struct stat fileStat;
-	 stat(file, &fileStat);
-     return fileStat.st_size ; 
-}
 
 
 
